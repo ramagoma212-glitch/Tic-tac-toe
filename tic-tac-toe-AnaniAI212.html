@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Tic Tac Toe - Anani R.M AI.</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #b8c2cc;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .control-group {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            min-width: 200px;
+        }
+
+        .control-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #ffd166;
+        }
+
+        select, button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        select {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        select:hover, button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.5);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            margin: 0 auto 25px;
+            max-width: 320px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .cell.x {
+            color: #ff6b6b;
+        }
+
+        .cell.o {
+            color: #4ecdc4;
+        }
+
+        .status {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #2277cc;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 25px;
+            border-radius: 15px;
+            min-width: 120px;
+        }
+
+        .score-title {
+            font-size: 1rem;
+            color: #2b6eb1;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .x-score {
+            color: #ff6b6b;
+        }
+
+        .o-score {
+            color: #4ecdc4;
+        }
+
+        .ties-score {
+            color: #ffd166;
+        }
+
+        .winner {
+            animation: winner-animation 1s infinite alternate;
+        }
+
+        @keyframes winner-animation {
+            from {
+                background: rgba(255, 215, 0, 0.2);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            }
+            to {
+                background: rgba(255, 215, 0, 0.4);
+                box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+            }
+        }
+
+        .restarting {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .restarting.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .restart-message {
+            font-size: 2.5rem;
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .difficulty-indicator {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #ffd166;
+        }
+
+        footer {
+            margin-top: 30px;
+            color: #1f71c4;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            
+            .board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-gamepad"></i> ULTIMATE TIC TAC TOE</h1>
+            <p class="subtitle">Challenge yourself against Anani R.M AI. or play with a friend</p>
+        </header>
+
+        <div class="game-container">
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-title"><i class="fas fa-users"></i> GAME MODE</div>
+                    <select id="mode">
+                        <option value="ai">VS Anani R.M AI.</option>
+                        <option value="two">Two Players</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-title"><i class="fas fa-brain"></i> DIFFICULTY</div>
+                    <select id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="hard">Hard</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                    <div class="difficulty-indicator" id="difficultyIndicator">Casual gameplay</div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-title"><i class="fas fa-sync-alt"></i> ACTIONS</div>
+                    <button id="reset"><i class="fas fa-redo-alt"></i> Reset Game</button>
+                </div>
+            </div>
+
+            <div class="status" id="status">Player X turn</div>
+
+            <div class="board" id="board">
+                <!-- Cells will be generated by JavaScript -->
+            </div>
+
+            <div class="scoreboard">
+                <div class="score">
+                    <div class="score-title">X WINS</div>
+                    <div class="score-value x-score" id="xWins">0</div>
+                </div>
+                <div class="score">
+                    <div class="score-title">TIES</div>
+                    <div class="score-value ties-score" id="ties">0</div>
+                </div>
+                <div class="score">
+                    <div class="score-title">O WINS</div>
+                    <div class="score-value o-score" id="oWins">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="restarting" id="restartingOverlay">
+            <div class="restart-message">Game Over<br><span id="restartMessage">Restarting in 2 seconds...</span></div>
+        </div>
+
+        <footer>
+            <p>Made with <i class="fas fa-heart" style="color: #ff6b6b;"></i> | Anani R.M AI. Edition Whatsapp & phone call : 064 842 2146</p>
+        </footer>
+    </div>
+
+    <script>
+        // Wait for the DOM to be fully loaded before executing the script
+        document.addEventListener('DOMContentLoaded', function() {
+            const boardElement = document.getElementById("board");
+            const statusElement = document.getElementById("status");
+            const modeSelect = document.getElementById("mode");
+            const difficultySelect = document.getElementById("difficulty");
+            const difficultyIndicator = document.getElementById("difficultyIndicator");
+            const resetBtn = document.getElementById("reset");
+            const xWinsDisplay = document.getElementById("xWins");
+            const oWinsDisplay = document.getElementById("oWins");
+            const tiesDisplay = document.getElementById("ties");
+            const restartingOverlay = document.getElementById("restartingOverlay");
+            const restartMessage = document.getElementById("restartMessage");
+
+            let cells = [];
+            let currentPlayer = "X";
+            let gameActive = true;
+            let scores = { X: 0, O: 0, ties: 0 };
+            let aiTimeout = null;
+            let restartTimeout = null;
+
+            // Difficulty descriptions
+            const difficultyDescriptions = {
+                easy: "Casual gameplay😁",
+                hard: "Strategic moves🥶",
+                advanced: "Evil AI😤"
+            };
+
+            // Initialize the game
+            function init() {
+                createBoard();
+                updateDifficultyDescription();
+                setupEventListeners();
+                
+                // Set AI to start first sometimes
+                if (Math.random() > 0.5 && modeSelect.value === "ai") {
+                    setTimeout(function() {
+                        currentPlayer = "O";
+                        updateStatus();
+                        setTimeout(aiMove, 800);
+                    }, 1000);
+                }
+            }
+
+            function createBoard() {
+                boardElement.innerHTML = "";
+                cells = [];
+                
+                // Create 9 cells for the Tic Tac Toe board
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.index = i;
+                    cell.addEventListener("click", handleCellClick);
+                    boardElement.appendChild(cell);
+                    cells.push(cell);
+                }
+            }
+
+            function setupEventListeners() {
+                modeSelect.addEventListener("change", handleModeChange);
+                difficultySelect.addEventListener("change", handleDifficultyChange);
+                resetBtn.addEventListener("click", resetGame);
+            }
+
+            function handleModeChange() {
+                resetGame();
+                updateStatus();
+                
+                // Set AI to start first sometimes when switching to AI mode
+                if (modeSelect.value === "ai" && Math.random() > 0.5) {
+                    currentPlayer = "O";
+                    updateStatus();
+                    setTimeout(aiMove, 800);
+                }
+            }
+
+            function handleDifficultyChange() {
+                updateDifficultyDescription();
+                resetGame();
+            }
+
+            function updateDifficultyDescription() {
+                difficultyIndicator.textContent = difficultyDescriptions[difficultySelect.value];
+            }
+
+            function handleCellClick(e) {
+                if (!gameActive) return;
+                
+                const cell = e.target;
+                const index = cell.dataset.index;
+
+                if (cell.textContent !== "") return;
+
+                cell.textContent = currentPlayer;
+                cell.classList.add(currentPlayer.toLowerCase());
+
+                if (checkWinner(currentPlayer)) {
+                    endGame(currentPlayer);
+                    return;
+                }
+
+                if (isBoardFull()) {
+                    endGame("tie");
+                    return;
+                }
+
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                updateStatus();
+
+                if (modeSelect.value === "ai" && currentPlayer === "O") {
+                    // Clear any existing timeout to prevent multiple AI moves
+                    if (aiTimeout) clearTimeout(aiTimeout);
+                    aiTimeout = setTimeout(aiMove, 800);
+                }
+            }
+
+            function updateStatus() {
+                if (modeSelect.value === "ai") {
+                    if (currentPlayer === "X") {
+                        statusElement.innerHTML = "Your turn (X)";
+                    } else {
+                        statusElement.innerHTML = "<span style='color: #4ecdc4'>Anani R.M AI.</span> is thinking...";
+                    }
+                } else {
+                    statusElement.textContent = "Player " + currentPlayer + "'s turn";
+                }
+            }
+
+            function checkWinner(player) {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                    [0, 4, 8], [2, 4, 6]             // Diagonals
+                ];
+
+                for (let i = 0; i < winPatterns.length; i++) {
+                    const pattern = winPatterns[i];
+                    if (cells[pattern[0]].textContent === player && 
+                        cells[pattern[1]].textContent === player && 
+                        cells[pattern[2]].textContent === player) {
+                        
+                        // Highlight winning cells
+                        for (let j = 0; j < pattern.length; j++) {
+                            cells[pattern[j]].classList.add("winner");
+                        }
+                        
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function isBoardFull() {
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i].textContent === "") {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function endGame(result) {
+                gameActive = false;
+                
+                if (result === "tie") {
+                    statusElement.innerHTML = "It's a <span style='color: #ffd166'>Tie(draw)</span>!";
+                    scores.ties++;
+                    restartMessage.innerHTML = "It's a <span style='color: #ffd166'>Tie</span>!<br>Restarting in 2 seconds...";
+                } else if (result === "O" && modeSelect.value === "ai") {
+                    statusElement.innerHTML = "<span style='color: #4ecdc4'>Anani R.M AI.</span> wins! 😎🔥";
+                    scores.O++;
+                    restartMessage.innerHTML = "<span style='color: #4ecdc4'>Anani R.M AI.</span> wins!<br>Restarting in 2 seconds...";
+                } else {
+                    var color = result === 'X' ? '#ff6b6b' : '#4ecdc4';
+                    statusElement.innerHTML = "Player <span style='color: " + color + "'>" + result + "</span> wins! yey!! 🎉";
+                    scores[result]++;
+                    restartMessage.innerHTML = "Player <span style='color: " + color + "'>" + result + "</span> wins!<br>Restarting in 2 seconds...";
+                }
+                
+                updateScores();
+                
+                // Show restart overlay and restart after delay
+                setTimeout(function() {
+                    restartingOverlay.classList.add('show');
+                    
+                    let count = 2;
+                    const countdown = setInterval(function() {
+                        restartMessage.innerHTML = restartMessage.innerHTML.replace(/\d+ seconds/, count + " seconds");
+                        count--;
+                        
+                        if (count < 0) {
+                            clearInterval(countdown);
+                            restartGame();
+                        }
+                    }, 1000);
+                }, 1500);
+            }
+
+            function updateScores() {
+                xWinsDisplay.textContent = scores.X;
+                oWinsDisplay.textContent = scores.O;
+                tiesDisplay.textContent = scores.ties;
+            }
+
+            function resetGame() {
+                // Clear any pending timeouts
+                if (aiTimeout) clearTimeout(aiTimeout);
+                if (restartTimeout) clearTimeout(restartTimeout);
+                
+                restartingOverlay.classList.remove('show');
+                currentPlayer = "X";
+                gameActive = true;
+                createBoard();
+                updateStatus();
+            }
+
+            function restartGame() {
+                resetGame();
+                
+                // Set AI to start first sometimes
+                if (modeSelect.value === "ai" && Math.random() > 0.5) {
+                    currentPlayer = "O";
+                    updateStatus();
+                    setTimeout(aiMove, 800);
+                }
+            }
+
+            function aiMove() {
+                const difficulty = difficultySelect.value;
+                let move;
+
+                if (difficulty === "easy") {
+                    move = randomMove();
+                } else if (difficulty === "hard") {
+                    move = winningMove("O") || winningMove("X") || randomMove();
+                } else if (difficulty === "advanced") {
+                    move = bestMove();
+                }
+
+                if (move !== null && move >= 0 && move < 9) {
+                    cells[move].click();
+                }
+            }
+
+            function randomMove() {
+                const emptyCells = [];
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i].textContent === "") {
+                        emptyCells.push(i);
+                    }
+                }
+                
+                if (emptyCells.length === 0) return null;
+                const randomIndex = Math.floor(Math.random() * emptyCells.length);
+                return emptyCells[randomIndex];
+            }
+
+            function winningMove(player) {
+                const winPatterns = [
+                    [0,1,2],[3,4,5],[6,7,8],
+                    [0,3,6],[1,4,7],[2,5,8],
+                    [0,4,8],[2,4,6]
+                ];
+                
+                for (let i = 0; i < winPatterns.length; i++) {
+                    const pattern = winPatterns[i];
+                    const values = [
+                        cells[pattern[0]].textContent,
+                        cells[pattern[1]].textContent,
+                        cells[pattern[2]].textContent
+                    ];
+                    
+                    if (values.filter(function(v) { return v === player; }).length === 2) {
+                        for (let j = 0; j < values.length; j++) {
+                            if (values[j] === "") {
+                                return pattern[j];
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            function bestMove() {
+                // For advanced mode, use a combination of strategies
+                // Try to win, then block, then take center, then take corners, then random
+                let move = winningMove("O"); // Try to win
+                if (move !== null) return move;
+                
+                move = winningMove("X"); // Block opponent
+                if (move !== null) return move;
+                
+                // Take center if available
+                if (cells[4].textContent === "") return 4;
+                
+                // Take corners if available
+                const corners = [0, 2, 6, 8];
+                const availableCorners = corners.filter(function(i) { return cells[i].textContent === ""; });
+                if (availableCorners.length > 0) {
+                    return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+                }
+                
+                // Otherwise random move
+                return randomMove();
+            }
+
+            // Initialize the game
+            init();
+        });
+    </script>
+</body>
+</html>
